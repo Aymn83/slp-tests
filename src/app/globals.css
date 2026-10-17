@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand: #0f766e;
+  --color-brand-dark: #134e4a;
+  --color-brand-soft: #e6f4f1;
+  --color-ink: #1f2933;
+  --color-ink-soft: #5f6b76;
+  --color-line: #e3e8ec;
+  --color-page: #f5f7f8;
+  --font-sans: var(--font-cairo);
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-line bg-white p-5 shadow-sm;
+  }
+  .label {
+    @apply mb-1 block text-sm font-semibold text-ink;
+  }
+  .input {
+    @apply w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/20;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-semibold text-ink transition hover:bg-page disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply border-brand bg-brand text-white hover:bg-brand-dark;
+  }
+  .btn-danger {
+    @apply border-red-200 bg-white text-red-700 hover:bg-red-50;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+  .table {
+    @apply w-full text-sm;
+  }
+  .table th {
+    @apply border-b border-line px-3 py-2 text-start font-semibold text-ink-soft;
+  }
+  .table td {
+    @apply border-b border-line px-3 py-2 align-middle;
+  }
+  .h1 {
+    @apply text-2xl font-bold text-ink;
+  }
+  .h2 {
+    @apply text-lg font-bold text-ink;
+  }
+  .muted {
+    @apply text-sm text-ink-soft;
+  }
+}
+
+/* ===== الطباعة: التقرير فقط على ورق A4 ===== */
+@page {
+  size: A4;
+  margin: 14mm 12mm;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  .report {
+    box-shadow: none !important;
+    border: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+  }
+  .report * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .avoid-break {
+    break-inside: avoid;
+  }
+}

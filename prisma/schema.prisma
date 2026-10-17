@@ -1,0 +1,93 @@
+// منصة الاختبارات الخاصة باضطرابات اللغة والكلام
+// PostgreSQL محلياً وعلى السيرفر.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  email        String?
+  passwordHash String
+  fullName     String
+  fullNameEn   String?
+  organization String? // جهة العمل — تظهر في ترويسة التقرير
+  jobTitle     String?
+  phone        String?
+  role         String    @default("examiner") // admin | examiner
+  status       String    @default("pending") // pending | active | suspended | rejected
+  packageId    String?
+  package      Package?  @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  expiresAt    DateTime? // انتهاء العضوية (اختياري)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  cases       Case[]
+  assessments Assessment[]
+}
+
+// الباقة: مجموعة اختبارات يُسمح لأعضائها باستخدامها
+model Package {
+  id          String   @id @default(cuid())
+  name        String
+  nameEn      String?
+  description String?
+  testIds     String   @default("[]") // JSON: مصفوفة معرّفات الاختبارات
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users User[]
+}
+
+// المفحوص — يملكه الفاحص الذي أدخله فقط
+model Case {
+  id               String    @id @default(cuid())
+  ownerId          String
+  owner            User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  fullName         String
+  birthDate        DateTime?
+  gender           String? // male | female
+  referralSource   String?
+  referralReason   String?
+  initialDiagnosis String?
+  motherLanguage   String?
+  homeLanguages    String?
+  school           String?
+  grade            String?
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  assessments Assessment[]
+
+  @@index([ownerId])
+}
+
+// تطبيق اختبار على مفحوص
+model Assessment {
+  id              Int      @id @default(autoincrement()) // يُشتق منه رقم التقرير
+  caseId          String
+  case            Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  examinerId      String
+  examiner        User     @relation(fields: [examinerId], references: [id], onDelete: Cascade)
+  testId          String
+  testVersion     String
+  testDate        DateTime @default(now())
+  responses       String   @default("{}") // JSON: { itemId: value }
+  extra           String   @default("{}") // JSON: حقول نصية إضافية يعرّفها الاختبار
+  recommendations String   @default("")
+  notes           String   @default("")
+  status          String   @default("draft") // draft | final
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([examinerId])
+  @@index([caseId])
+}
