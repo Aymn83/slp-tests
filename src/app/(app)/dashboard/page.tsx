@@ -8,7 +8,7 @@ import { AssessmentStatusBadge } from "@/components/status-badge";
 export default async function DashboardPage() {
   const user = await requireUser();
   const { lang, t } = await getDict();
-  const [cases, assessments, recent, pending] = await Promise.all([
+  const [cases, assessments, recent, pending, allCases] = await Promise.all([
     prisma.case.count({ where: { ownerId: user.id } }),
     prisma.assessment.count({ where: { examinerId: user.id } }),
     prisma.assessment.findMany({
@@ -18,14 +18,20 @@ export default async function DashboardPage() {
       include: { case: { select: { fullName: true } } },
     }),
     user.role === "admin" ? prisma.user.count({ where: { status: "pending" } }) : Promise.resolve(0),
+    user.role === "admin" ? prisma.case.count() : Promise.resolve(0),
   ]);
   const tests = allowedTestIds(user).length;
 
   const stats = [
-    { label: t.myCases, value: cases, href: "/cases" },
+    { label: t.myCases, value: cases, href: "/cases?scope=mine" },
     { label: t.myAssessments, value: assessments, href: "/cases" },
     { label: t.availableTests, value: tests, href: "/tests" },
-    ...(user.role === "admin" ? [{ label: t.pendingUsers, value: pending, href: "/admin/users" }] : []),
+    ...(user.role === "admin"
+      ? [
+          { label: t.platformCases, value: allCases, href: "/cases" },
+          { label: t.pendingUsers, value: pending, href: "/admin/users" },
+        ]
+      : []),
   ];
 
   return (
@@ -44,7 +50,7 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
         {stats.map((s) => (
           <Link key={s.label} href={s.href} className="card transition hover:border-brand">
             <div className="text-3xl font-extrabold text-brand-dark">{s.value}</div>

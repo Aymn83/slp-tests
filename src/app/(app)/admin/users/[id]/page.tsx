@@ -37,6 +37,11 @@ export default async function ManageUserPage({ params }: { params: Promise<{ id:
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="h1">{user.fullName}</h1>
         <UserStatusBadge user={user} t={t} />
+        {user._count.cases > 0 && (
+          <Link href={`/cases?examiner=${user.id}`} className="btn btn-sm">
+            {t.viewCases} ({user._count.cases})
+          </Link>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

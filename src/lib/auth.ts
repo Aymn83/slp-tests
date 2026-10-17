@@ -66,6 +66,11 @@ export function parseIds(json: string | null | undefined): string[] {
 }
 
 // الاختبارات المسموحة: المدير يرى الكل، والعضو حسب باقته
+// المدير يطّلع على كل الحالات والاختبارات (قراءة فقط)؛ التعديل يبقى لصاحب الحالة
+export function canViewAll(user: Pick<CurrentUser, "role">): boolean {
+  return user.role === "admin";
+}
+
 export function allowedTestIds(user: CurrentUser): string[] {
   const ids = allTests.map((t) => t.meta.id);
   if (user.role === "admin") return ids;

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { loadOwnAssessment, reportNumber } from "@/lib/assessments";
+import { loadAssessment, reportNumber } from "@/lib/assessments";
 import { formatAge, formatDate, getDict, tx, type Dict, type Lang } from "@/lib/i18n";
 import { ResultsTable } from "@/components/results-table";
 import type { TestDefinition, TestResult } from "@/tests/types";
@@ -106,7 +106,7 @@ function GenericResults({
 export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser();
   const { lang, t } = await getDict();
-  const data = await loadOwnAssessment(user.id, (await params).id);
+  const data = await loadAssessment(user, (await params).id);
   if (!data) notFound();
   const { a, test } = data;
   const c = a.case;

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { allowedTestIds, requireUser } from "@/lib/auth";
+import { allowedTestIds, canViewAll, requireUser } from "@/lib/auth";
 import { deleteCaseAction, startAssessmentAction } from "@/lib/case-actions";
 import { formatAge, formatDate, getDict, tx } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
@@ -13,10 +13,11 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const { lang, t } = await getDict();
   const c = await prisma.case.findFirst({
-    where: { id, ownerId: user.id },
-    include: { assessments: { orderBy: { testDate: "desc" } } },
+    where: canViewAll(user) ? { id } : { id, ownerId: user.id },
+    include: { assessments: { orderBy: { testDate: "desc" } }, owner: { select: { fullName: true, organization: true } } },
   });
   if (!c) notFound();
+  const isOwner = c.ownerId === user.id;
   const allowed = allowedTestIds(user).map((x) => getTest(x)!.meta);
 
   const info: [string, string | null][] = [
@@ -40,6 +41,7 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
       </Link>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="h1">{c.fullName}</h1>
+        {isOwner && (
         <div className="flex gap-2">
           <Link href={`/cases/${c.id}/edit`} className="btn btn-sm">
             {t.edit}
@@ -49,7 +51,18 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
             <ConfirmButton message={t.deleteCaseConfirm}>{t.delete}</ConfirmButton>
           </form>
         </div>
+        )}
       </div>
+
+      {!isOwner && (
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          <b>
+            {t.examiner}: {c.owner.fullName}
+            {c.owner.organization && ` — ${c.owner.organization}`}
+          </b>{" "}
+          · {t.viewOnly}
+        </p>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
         <section className="card">
@@ -65,6 +78,7 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
         </section>
 
         <div className="space-y-6">
+          {isOwner && (
           <section className="card">
             <h2 className="h2 mb-3">{t.newAssessment}</h2>
             {allowed.length === 0 ? (
@@ -83,6 +97,7 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
               </form>
             )}
           </section>
+          )}
 
           <section className="card">
             <h2 className="h2 mb-3">{t.assessments}</h2>
@@ -100,7 +115,7 @@ export default async function CasePage({ params }: { params: Promise<{ id: strin
                       </div>
                       <AssessmentStatusBadge status={a.status} t={t} />
                       <Link href={`/assessments/${a.id}`} className="btn btn-sm">
-                        {a.status === "final" ? t.results : t.edit}
+                        {a.status === "final" || !isOwner ? t.results : t.edit}
                       </Link>
                       <Link href={`/assessments/${a.id}/report`} className="btn btn-sm">
                         {t.report}

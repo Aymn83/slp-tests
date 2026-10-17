@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import { loadOwnAssessment } from "@/lib/assessments";
+import { loadAssessment } from "@/lib/assessments";
 import { deleteAssessmentAction, reopenAssessmentAction } from "@/lib/case-actions";
 import { formatAge, formatDate, getDict, tx } from "@/lib/i18n";
 import { ConfirmButton, SubmitButton } from "@/components/ui";
@@ -16,9 +16,9 @@ import { AssessmentForm } from "./assessment-form";
 export default async function AssessmentPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser();
   const { lang, t } = await getDict();
-  const data = await loadOwnAssessment(user.id, (await params).id);
+  const data = await loadAssessment(user, (await params).id);
   if (!data) notFound();
-  const { a, test } = data;
+  const { a, test, isOwner } = data;
   const testDate = a.testDate.toISOString().slice(0, 10);
 
   return (
@@ -35,20 +35,30 @@ export default async function AssessmentPage({ params }: { params: Promise<{ id:
           </div>
           <p className="muted">
             {a.case.fullName} · {t.ageAtTest}: {formatAge(t, a.case.birthDate, a.testDate)}
+            {!isOwner && ` · ${t.examiner}: ${a.examiner.fullName}`}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Link href={`/assessments/${a.id}/report`} className="btn btn-sm">
             {t.report}
           </Link>
-          <form action={deleteAssessmentAction}>
-            <input type="hidden" name="id" value={a.id} />
-            <ConfirmButton message={t.deleteAssessmentConfirm}>{t.delete}</ConfirmButton>
-          </form>
+          {isOwner && (
+            <form action={deleteAssessmentAction}>
+              <input type="hidden" name="id" value={a.id} />
+              <ConfirmButton message={t.deleteAssessmentConfirm}>{t.delete}</ConfirmButton>
+            </form>
+          )}
         </div>
       </div>
 
-      {a.status === "final" ? (
+      {!isOwner && (
+        <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          {t.viewOnly}
+          {a.status !== "final" && ` ${t.draftByOther}`}
+        </p>
+      )}
+
+      {a.status === "final" || !isOwner ? (
         <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
           <section className="card space-y-4">
             <h2 className="h2">{t.results}</h2>
@@ -71,14 +81,16 @@ export default async function AssessmentPage({ params }: { params: Promise<{ id:
             </div>
           </section>
           <section className="card space-y-3 self-start">
-            <p className="muted">{t.finalLocked}</p>
+            {isOwner && <p className="muted">{t.finalLocked}</p>}
             <Link href={`/assessments/${a.id}/report`} className="btn btn-primary w-full">
               {t.report}
             </Link>
-            <form action={reopenAssessmentAction}>
-              <input type="hidden" name="id" value={a.id} />
-              <SubmitButton className="btn w-full">{t.reopen}</SubmitButton>
-            </form>
+            {isOwner && (
+              <form action={reopenAssessmentAction}>
+                <input type="hidden" name="id" value={a.id} />
+                <SubmitButton className="btn w-full">{t.reopen}</SubmitButton>
+              </form>
+            )}
           </section>
         </div>
       ) : data.kind === "sham" ? (
