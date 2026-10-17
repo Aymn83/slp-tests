@@ -12,6 +12,8 @@ export async function getLang(): Promise<Lang> {
 const ar = {
   siteTitle: "الاختبارات الخاصة باضطرابات اللغة والكلام",
   siteSubtitle: "منصة إلكترونية لتطبيق الاختبارات وإعداد التقارير",
+  seoDescription: "منصة متخصصة لأخصائيي النطق واللغة: تطبيق اختبارات اضطرابات اللغة والكلام إلكترونياً وإعداد تقارير جاهزة للطباعة، مع دليل للاختصاصيين المعتمدين.",
+  specialistsSeo: "ابحث عن أخصائي نطق ولغة معتمد حسب الدولة والتخصص، واطّلع على رقم الترخيص ومكان العمل وطرق التواصل.",
   switchLang: "English",
 
   // عام
@@ -249,6 +251,8 @@ export type Dict = typeof ar;
 const en: Dict = {
   siteTitle: "Speech & Language Disorders Assessments",
   siteSubtitle: "An online platform for administering tests and writing reports",
+  seoDescription: "A platform for speech-language pathologists: administer speech and language disorder assessments online, produce print-ready reports, and find certified specialists.",
+  specialistsSeo: "Find a certified speech-language specialist by country and specialty, with license number, workplace and contact details.",
   switchLang: "العربية",
 
   login: "Sign in",

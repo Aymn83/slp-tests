@@ -4,7 +4,7 @@ import { SESSION_COOKIE, verifyToken } from "@/lib/session";
 // فحص متفائل فقط: هل يوجد جلسة صالحة؟ التحقق الكامل من الحالة والصلاحيات يتم في الصفحات.
 const PUBLIC_PATHS = new Set(["/login", "/register"]);
 // صفحات عامة يراها الجميع، مسجّلين أو زواراً
-const OPEN_PREFIXES = ["/specialists"];
+const OPEN_PREFIXES = ["/specialists", "/robots.txt", "/sitemap.xml", "/manifest.webmanifest", "/opengraph-image", "/icon", "/apple-icon"];
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;

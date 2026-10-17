@@ -3,6 +3,10 @@ import { PublicShell } from "@/components/public-shell";
 import { canUseSite, getCurrentUser, isExpired } from "@/lib/auth";
 import { logoutAction } from "@/lib/auth-actions";
 import { getDict } from "@/lib/i18n";
+import { NO_INDEX } from "@/lib/seo";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { robots: NO_INDEX };
 
 export default async function PendingPage() {
   const user = await getCurrentUser();

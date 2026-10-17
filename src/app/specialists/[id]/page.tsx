@@ -1,4 +1,7 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { cache } from "react";
+import { NO_INDEX, SITE_URL, jsonLd } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getDict } from "@/lib/i18n";
@@ -31,10 +34,31 @@ function List({ items }: { items: Row[] }) {
   );
 }
 
+// يُستدعى مرة واحدة لكل طلب رغم استخدامه في البيانات الوصفية والصفحة
+const loadSpecialist = cache((id: string) => prisma.specialist.findUnique({ where: { id }, omit: { photo: true } }));
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const s = await loadSpecialist(id);
+  if (!s || s.status !== "approved") return { robots: NO_INDEX };
+  const place = [s.governorate, s.country].filter(Boolean).join("، ");
+  const title = `${s.fullName} — ${s.specialty}`;
+  const description = [s.specialty, place, s.workplace].filter(Boolean).join(" · ");
+  const url = `/specialists/${s.id}`;
+  const images = s.hasPhoto ? [{ url: `${url}/photo?v=${s.updatedAt.getTime()}`, alt: s.fullName }] : undefined;
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { type: "profile", title, description, url, images },
+    twitter: { card: s.hasPhoto ? "summary" : "summary_large_image", title, description },
+  };
+}
+
 export default async function SpecialistPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { t } = await getDict();
-  const s = await prisma.specialist.findUnique({ where: { id }, omit: { photo: true } });
+  const s = await loadSpecialist(id);
   const user = await getCurrentUser();
   const isAdmin = user?.role === "admin";
   // الملفات غير المعتمدة لا يراها إلا المدير
@@ -55,8 +79,26 @@ export default async function SpecialistPage({ params }: { params: Promise<{ id:
     { label: t.email, value: s.email, href: s.email ? `mailto:${s.email}` : undefined, ltr: true },
   ];
 
+  // بيانات منظَّمة (Person) تساعد محركات البحث على فهم الملف
+  const person = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": `${SITE_URL}/specialists/${s.id}`,
+    name: s.fullName,
+    jobTitle: s.specialty,
+    url: `${SITE_URL}/specialists/${s.id}`,
+    ...(s.hasPhoto && { image: `${SITE_URL}/specialists/${s.id}/photo` }),
+    ...(s.email && { email: s.email }),
+    ...(s.phone && { telephone: s.phone }),
+    address: { "@type": "PostalAddress", addressCountry: s.country, ...(s.governorate && { addressRegion: s.governorate }) },
+    ...(s.workplace && {
+      worksFor: { "@type": "Organization", name: s.workplace, ...(s.workPhone && { telephone: s.workPhone }) },
+    }),
+  };
+
   return (
     <div className="space-y-5">
+      {s.status === "approved" && <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(person)} />}
       <Link href="/specialists" className="muted hover:text-brand">
         ← {t.backToList}
       </Link>

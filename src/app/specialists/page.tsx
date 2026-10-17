@@ -1,4 +1,6 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+import { SITE_URL, jsonLd } from "@/lib/seo";
 import { getDict } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
 import { SpecialistAvatar } from "@/components/specialist-avatar";
@@ -13,6 +15,16 @@ const LIST_FIELDS = {
   hasPhoto: true,
   updatedAt: true,
 } as const;
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getDict();
+  return {
+    title: t.specialists,
+    description: t.specialistsSeo,
+    alternates: { canonical: "/specialists" },
+    openGraph: { title: t.specialists, description: t.specialistsSeo, url: "/specialists" },
+  };
+}
 
 export default async function SpecialistsPage({ searchParams }: { searchParams: Promise<{ q?: string; country?: string }> }) {
   const { t } = await getDict();
@@ -34,8 +46,22 @@ export default async function SpecialistsPage({ searchParams }: { searchParams: 
     prisma.specialist.findMany({ where: { status: "approved" }, distinct: ["country"], select: { country: true }, orderBy: { country: "asc" } }),
   ]);
 
+  // بيانات منظَّمة: الموقع + قائمة الاختصاصيين المعتمدين
+  const structured = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "WebSite", "@id": `${SITE_URL}/#website`, url: SITE_URL, name: t.siteTitle, inLanguage: "ar" },
+      {
+        "@type": "ItemList",
+        name: t.specialists,
+        itemListElement: list.map((s, i) => ({ "@type": "ListItem", position: i + 1, url: `${SITE_URL}/specialists/${s.id}`, name: s.fullName })),
+      },
+    ],
+  };
+
   return (
     <div className="space-y-5">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLd(structured)} />
       <form className="flex flex-wrap gap-3">
         <input name="q" defaultValue={q} placeholder={t.searchSpecialists} className="input max-w-sm" />
         {countries.length > 1 && (

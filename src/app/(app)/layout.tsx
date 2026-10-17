@@ -5,6 +5,11 @@ import { getDict } from "@/lib/i18n";
 import { LangToggle } from "@/components/lang-toggle";
 import { Logo } from "@/components/logo";
 import { prisma } from "@/lib/prisma";
+import { NO_INDEX } from "@/lib/seo";
+import type { Metadata } from "next";
+
+// صفحات المنصة الداخلية خاصة — لا تظهر في محركات البحث
+export const metadata: Metadata = { robots: NO_INDEX };
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
