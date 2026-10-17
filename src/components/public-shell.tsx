@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getDict } from "@/lib/i18n";
 import { LangToggle } from "./lang-toggle";
 import { Logo } from "./logo";
@@ -15,6 +16,9 @@ export async function PublicShell({ children }: { children: React.ReactNode }) {
         <p className="muted mt-1">{t.siteSubtitle}</p>
       </div>
       <div className="card w-full max-w-md">{children}</div>
+      <Link href="/specialists" className="mt-6 font-semibold text-brand hover:underline">
+        {t.specialists}
+      </Link>
     </main>
   );
 }

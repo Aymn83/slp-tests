@@ -3,9 +3,12 @@ import { SESSION_COOKIE, verifyToken } from "@/lib/session";
 
 // فحص متفائل فقط: هل يوجد جلسة صالحة؟ التحقق الكامل من الحالة والصلاحيات يتم في الصفحات.
 const PUBLIC_PATHS = new Set(["/login", "/register"]);
+// صفحات عامة يراها الجميع، مسجّلين أو زواراً
+const OPEN_PREFIXES = ["/specialists"];
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  if (OPEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))) return NextResponse.next();
   const token = req.cookies.get(SESSION_COOKIE)?.value;
   const session = token ? await verifyToken(token) : null;
 

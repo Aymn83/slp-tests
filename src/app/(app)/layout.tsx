@@ -9,16 +9,21 @@ import { prisma } from "@/lib/prisma";
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
   const { lang, t } = await getDict();
-  const pending = user.role === "admin" ? await prisma.user.count({ where: { status: "pending" } }) : 0;
+  const [pending, pendingSpecialists] =
+    user.role === "admin"
+      ? await Promise.all([prisma.user.count({ where: { status: "pending" } }), prisma.specialist.count({ where: { status: "pending" } })])
+      : [0, 0];
 
   const nav = [
     { href: "/dashboard", label: t.dashboard },
     { href: "/cases", label: t.cases },
     { href: "/tests", label: t.tests },
+    { href: "/specialists", label: t.specialists },
     ...(user.role === "admin"
       ? [
           { href: "/admin/users", label: t.users, count: pending },
           { href: "/admin/packages", label: t.packages },
+          { href: "/admin/specialists", label: t.specialistRequests, count: pendingSpecialists },
         ]
       : []),
   ];
