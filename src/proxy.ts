@@ -14,7 +14,8 @@ export async function proxy(req: NextRequest) {
 
   if (!session && !PUBLIC_PATHS.has(pathname)) {
     const url = req.nextUrl.clone();
-    url.pathname = "/login";
+    // الزائر الذي يفتح الصفحة الرئيسية يصل إلى دليل الاختصاصيين؛ أي صفحة خاصة أخرى تطلب تسجيل الدخول
+    url.pathname = pathname === "/" ? "/specialists" : "/login";
     url.search = "";
     return NextResponse.redirect(url);
   }
