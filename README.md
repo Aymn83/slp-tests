@@ -30,4 +30,4 @@ npm run dev     # http://localhost:3200
 ## قاعدة البيانات والنشر
 
 قاعدة البيانات PostgreSQL محلياً وعلى السيرفر (`DATABASE_URL` في `.env`، والنموذج في `.env.example`).
-خطوات النشر على `myskills.it` في [DEPLOY.md](DEPLOY.md)، والتحديث بعدها بأمر واحد على السيرفر: `/root/update-slp.sh`.
+خطوات النشر على `myskills.lt` في [DEPLOY.md](DEPLOY.md)، والتحديث بعدها بأمر واحد على السيرفر: `/root/update-slp.sh`.

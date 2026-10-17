@@ -1,4 +1,4 @@
-# نشر موقع الاختبارات على VPS — `myskills.it`
+# نشر موقع الاختبارات على VPS — `myskills.lt`
 
 تطبيق Next.js 16 + Prisma + PostgreSQL، يعمل على **نفس سيرفر براعم** (`187.124.13.157`) لكن **معزولاً تماماً**:
 
@@ -15,11 +15,11 @@
 
 ## 0) قبل البدء (مرة واحدة)
 
-**أ) DNS** — من لوحة تحكم النطاق `myskills.it` أضف سجلين:
+**أ) DNS** — من لوحة تحكم النطاق `myskills.lt` أضف سجلين:
 - `A` ← `@` ← `187.124.13.157`
 - `A` ← `www` ← `187.124.13.157`
 
-انتظر حتى ينتشر (تحقق: `ping myskills.it` يُظهر عنوان السيرفر).
+انتظر حتى ينتشر (تحقق: `ping myskills.lt` يُظهر عنوان السيرفر).
 
 **ب) مستودع GitHub** — المستودع `Aymn83/slp-tests` **خاص (Private)**.
 
@@ -95,16 +95,16 @@ curl -I http://127.0.0.1:3200/login   # يجب أن يرجع 200
 
 ## 8) Nginx
 ```bash
-cp deploy/nginx-myskills.it.conf /etc/nginx/sites-available/slp-tests
+cp deploy/nginx-myskills.lt.conf /etc/nginx/sites-available/slp-tests
 ln -s /etc/nginx/sites-available/slp-tests /etc/nginx/sites-enabled/
 nginx -t && systemctl reload nginx
 ```
 
 ## 9) شهادة SSL (إلزامية — تسجيل الدخول لا يعمل بدون HTTPS)
 ```bash
-certbot --nginx -d myskills.it -d www.myskills.it
+certbot --nginx -d myskills.lt -d www.myskills.lt
 ```
-افتح: **https://myskills.it** وسجّل الدخول بحساب المدير، ثم **غيّر كلمة المرور فوراً** من «ملفي الشخصي».
+افتح: **https://myskills.lt** وسجّل الدخول بحساب المدير، ثم **غيّر كلمة المرور فوراً** من «ملفي الشخصي».
 
 ## 10) أمر التحديث (مرة واحدة)
 ```bash

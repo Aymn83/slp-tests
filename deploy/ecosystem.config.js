@@ -1,4 +1,4 @@
-// إعداد PM2 لتشغيل موقع الاختبارات (myskills.it) كعملية مستقلة عن براعم
+// إعداد PM2 لتشغيل موقع الاختبارات (myskills.lt) كعملية مستقلة عن براعم
 // التشغيل:  pm2 start deploy/ecosystem.config.js  ثم  pm2 save
 module.exports = {
   apps: [
