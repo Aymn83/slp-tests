@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "./prisma";
 import { hashPassword, verifyPassword } from "./password";
-import { createSession, destroySession, requireUser } from "./auth";
+import { createSession, destroySession, homeFor, requireUser } from "./auth";
 import { LANG_COOKIE, getDict } from "./i18n";
 import { opt, str, validateNewCredentials } from "./credentials";
 import type { FormState } from "./form-state";
@@ -18,7 +18,7 @@ export async function loginAction(_: FormState, fd: FormData): Promise<FormState
   if (!user || !(await verifyPassword(password, user.passwordHash))) return { error: t.invalidCredentials };
   await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
   await createSession(user.id);
-  redirect("/dashboard");
+  redirect(homeFor(user));
 }
 
 export async function registerAction(_: FormState, fd: FormData): Promise<FormState> {
@@ -42,6 +42,29 @@ export async function registerAction(_: FormState, fd: FormData): Promise<FormSt
     },
   });
   return { ok: t.registerDone };
+}
+
+// حساب طالب: يُفعَّل مباشرة ويقتصر على الأنشطة التدريبية
+export async function registerStudentAction(_: FormState, fd: FormData): Promise<FormState> {
+  const { t } = await getDict();
+  const fullName = str(fd, "fullName");
+  if (!fullName) return { error: t.fillRequired };
+  const v = await validateNewCredentials(fd, t);
+  if ("error" in v) return v;
+  const user = await prisma.user.create({
+    data: {
+      username: v.username,
+      passwordHash: await hashPassword(v.password),
+      fullName,
+      organization: opt(fd, "organization"),
+      email: opt(fd, "email"),
+      role: "student",
+      status: "active",
+      lastLoginAt: new Date(),
+    },
+  });
+  await createSession(user.id);
+  redirect("/student");
 }
 
 export async function logoutAction() {

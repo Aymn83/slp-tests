@@ -93,6 +93,7 @@ export default async function UsersPage() {
                 <td>
                   <div className="font-semibold">
                     {u.fullName} {u.role === "admin" && <span className="badge bg-brand-soft text-brand-dark">{t.roleAdmin}</span>}
+                    {u.role === "student" && <span className="badge bg-amber-100 text-amber-800">{t.roleStudent}</span>}
                   </div>
                   <div className="muted" dir="ltr">@{u.username}</div>
                 </td>

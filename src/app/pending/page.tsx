@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { PublicShell } from "@/components/public-shell";
-import { canUseSite, getCurrentUser, isExpired } from "@/lib/auth";
+import { canUseSite, getCurrentUser, homeFor, isExpired } from "@/lib/auth";
 import { logoutAction } from "@/lib/auth-actions";
 import { getDict } from "@/lib/i18n";
 import { NO_INDEX } from "@/lib/seo";
@@ -11,7 +11,7 @@ export const metadata: Metadata = { robots: NO_INDEX };
 export default async function PendingPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/session-reset"); // لا جلسة، أو جلسة لمستخدم لم يعد موجوداً
-  if (canUseSite(user)) redirect("/dashboard");
+  if (canUseSite(user)) redirect(homeFor(user));
   const { t } = await getDict();
   const body =
     user.status === "rejected"

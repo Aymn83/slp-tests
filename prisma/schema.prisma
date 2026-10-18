@@ -20,7 +20,7 @@ model User {
   organization String? // جهة العمل — تظهر في ترويسة التقرير
   jobTitle     String?
   phone        String?
-  role         String    @default("examiner") // admin | examiner
+  role         String    @default("examiner") // admin | examiner | student
   status       String    @default("pending") // pending | active | suspended | rejected
   packageId    String?
   package      Package?  @relation(fields: [packageId], references: [id], onDelete: SetNull)
@@ -31,6 +31,23 @@ model User {
 
   cases       Case[]
   assessments Assessment[]
+  attempts    ActivityAttempt[]
+}
+
+// محاولة طالب في نشاط تدريبي — تُصحَّح الإجابات في الخادم ولا تُرسل مفاتيحها للمتصفح
+model ActivityAttempt {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activityId  String
+  answers     String    @default("{}") // JSON: { رقم السؤال: الخيار المختار } — أول إجابة لكل سؤال نهائية
+  score       Int?
+  total       Int
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([userId])
+  @@index([activityId])
 }
 
 // الباقة: مجموعة اختبارات يُسمح لأعضائها باستخدامها

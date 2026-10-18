@@ -44,7 +44,8 @@ export async function updateUserAccessAction(_: FormState, fd: FormData): Promis
   const admin = await requireAdmin();
   const { t } = await getDict();
   const id = str(fd, "id");
-  const role = str(fd, "role") === "admin" ? "admin" : "examiner";
+  const roleIn = str(fd, "role");
+  const role = roleIn === "admin" || roleIn === "student" ? roleIn : "examiner";
   const status = str(fd, "status");
   await prisma.user.update({
     where: { id },

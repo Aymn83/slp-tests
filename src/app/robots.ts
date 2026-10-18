@@ -7,7 +7,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: ["/specialists", "/login", "/register"],
-      disallow: ["/dashboard", "/cases", "/assessments", "/tests", "/profile", "/admin", "/pending", "/session-reset"],
+      // /register يشمل /register/student
+      disallow: ["/dashboard", "/cases", "/assessments", "/tests", "/profile", "/admin", "/pending", "/session-reset", "/student"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,

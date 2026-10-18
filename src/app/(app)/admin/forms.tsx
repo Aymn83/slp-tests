@@ -78,6 +78,7 @@ export function AccessForm({
           <label className="label">{t.role}</label>
           <select name="role" className="input" defaultValue={user.role} disabled={isSelf}>
             <option value="examiner">{t.roleExaminer}</option>
+            <option value="student">{t.roleStudent}</option>
             <option value="admin">{t.roleAdmin}</option>
           </select>
         </div>

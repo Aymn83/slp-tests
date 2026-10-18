@@ -244,6 +244,29 @@ const ar = {
   viewProfile: "عرض الملف",
   hideFromDirectory: "إخفاء من الدليل",
   requiredMark: "الحقول المعلّمة بـ * إجبارية.",
+
+  // الطلاب والأنشطة التدريبية
+  roleStudent: "طالب",
+  loginAs: "الدخول بصفة",
+  iAmSpecialist: "أخصائي",
+  iAmStudent: "طالب",
+  studentRegister: "إنشاء حساب طالب",
+  studentRegisterNote: "حساب الطالب يتيح لك الأنشطة التدريبية فقط، ويُفعَّل مباشرة.",
+  university: "الجامعة / الجهة",
+  studentArea: "منطقة الطالب",
+  activities: "الأنشطة التدريبية",
+  activitiesIntro: "أنشطة تفاعلية لتطبيق ما تتعلمه على حالات افتراضية. تُحفظ نتائجك ويطّلع عليها المحاضر.",
+  startActivity: "ابدأ النشاط",
+  retryActivity: "إعادة النشاط",
+  lastScore: "آخر نتيجة",
+  bestScore: "أفضل نتيجة",
+  attemptsCount: "عدد المحاولات",
+  studentResults: "نتائج الطلاب",
+  answerKey: "مفتاح التصحيح",
+  noAttempts: "لا توجد محاولات بعد.",
+  completedOn: "تاريخ الإنجاز",
+  inProgress: "لم تكتمل",
+  students: "الطلاب",
 };
 
 export type Dict = typeof ar;
@@ -474,6 +497,28 @@ const en: Dict = {
   viewProfile: "View profile",
   hideFromDirectory: "Hide from directory",
   requiredMark: "Fields marked * are required.",
+
+  roleStudent: "Student",
+  loginAs: "Sign in as",
+  iAmSpecialist: "Specialist",
+  iAmStudent: "Student",
+  studentRegister: "Create a student account",
+  studentRegisterNote: "A student account gives access to the training activities only, and is activated immediately.",
+  university: "University / institution",
+  studentArea: "Student area",
+  activities: "Training activities",
+  activitiesIntro: "Interactive activities to apply what you learn to simulated cases. Your results are saved and visible to the lecturer.",
+  startActivity: "Start activity",
+  retryActivity: "Try again",
+  lastScore: "Last score",
+  bestScore: "Best score",
+  attemptsCount: "Attempts",
+  studentResults: "Student results",
+  answerKey: "Answer key",
+  noAttempts: "No attempts yet.",
+  completedOn: "Completed",
+  inProgress: "Not finished",
+  students: "Students",
 };
 
 export const dicts: Record<Lang, Dict> = { ar, en };

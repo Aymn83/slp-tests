@@ -43,11 +43,29 @@ export function canUseSite(user: CurrentUser): boolean {
   return user.role === "admin" || (user.status === "active" && !isExpired(user));
 }
 
-export async function requireUser(): Promise<CurrentUser> {
+async function requireActive(): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (!user) redirect("/session-reset"); // لا جلسة، أو جلسة لمستخدم لم يعد موجوداً
   if (!canUseSite(user)) redirect("/pending");
   return user;
+}
+
+// منطقة الأخصائيين (الحالات والاختبارات والإدارة) — الطالب يُعاد إلى منطقته
+export async function requireUser(): Promise<CurrentUser> {
+  const user = await requireActive();
+  if (user.role === "student") redirect("/student");
+  return user;
+}
+
+// منطقة الطلاب (الأنشطة التدريبية) — للطلاب، والمدير يدخلها للاطلاع
+export async function requireStudentArea(): Promise<CurrentUser> {
+  const user = await requireActive();
+  if (user.role !== "student" && user.role !== "admin") redirect("/dashboard");
+  return user;
+}
+
+export function homeFor(user: Pick<CurrentUser, "role">): string {
+  return user.role === "student" ? "/student" : "/dashboard";
 }
 
 export async function requireAdmin(): Promise<CurrentUser> {

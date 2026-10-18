@@ -29,6 +29,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           { href: "/admin/users", label: t.users, count: pending },
           { href: "/admin/packages", label: t.packages },
           { href: "/admin/specialists", label: t.specialistRequests, count: pendingSpecialists },
+          { href: "/admin/students", label: t.studentResults },
         ]
       : []),
   ];
