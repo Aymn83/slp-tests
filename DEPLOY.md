@@ -151,9 +151,9 @@ nano /var/www/slp-tests/.env
 ```
 SMTP_HOST="smtp.hostinger.com"
 SMTP_PORT=465
-SMTP_USER="noreply@myskills.lt"
+SMTP_USER="noreply@therapists-slp.com"
 SMTP_PASS="كلمة_مرور_صندوق_البريد"
-MAIL_FROM="الاختبارات الخاصة باضطرابات اللغة والكلام <noreply@myskills.lt>"
+MAIL_FROM="الاختبارات الخاصة باضطرابات اللغة والكلام <noreply@therapists-slp.com>"
 ```
 ثم أعد تشغيل الموقع ليقرأ الإعدادات:
 ```bash
