@@ -6,7 +6,13 @@ import { prisma } from "./prisma";
 import { SESSION_COOKIE, SESSION_MAX_AGE, signToken, verifyToken } from "./session";
 import { allTests } from "@/tests";
 
-export type CurrentUser = User & { package: Package | null };
+export type LinkedSpecialist = { id: string; hasPhoto: boolean; updatedAt: Date; specialty: string; status: string };
+export type CurrentUser = Omit<User, "photo"> & { package: Package | null; specialists: LinkedSpecialist[] };
+
+// صفحة الدليل المرتبطة بالحساب (صفحة واحدة لكل حساب)
+export function linkedSpecialist(user: Pick<CurrentUser, "specialists">): LinkedSpecialist | null {
+  return user.specialists[0] ?? null;
+}
 
 export async function createSession(userId: string): Promise<void> {
   const token = await signToken({ userId });
@@ -32,7 +38,14 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   if (!token) return null;
   const session = await verifyToken(token);
   if (!session) return null;
-  return prisma.user.findUnique({ where: { id: session.userId }, include: { package: true } });
+  return prisma.user.findUnique({
+    where: { id: session.userId },
+    omit: { photo: true }, // لا تُحمَّل بيانات الصورة مع كل طلب
+    include: {
+      package: true,
+      specialists: { take: 1, orderBy: { createdAt: "asc" }, select: { id: true, hasPhoto: true, updatedAt: true, specialty: true, status: true } },
+    },
+  });
 });
 
 export function isExpired(user: Pick<User, "expiresAt" | "role">): boolean {
@@ -43,7 +56,7 @@ export function canUseSite(user: CurrentUser): boolean {
   return user.role === "admin" || (user.status === "active" && !isExpired(user));
 }
 
-async function requireActive(): Promise<CurrentUser> {
+export async function requireActive(): Promise<CurrentUser> {
   const user = await getCurrentUser();
   if (!user) redirect("/session-reset"); // لا جلسة، أو جلسة لمستخدم لم يعد موجوداً
   if (!canUseSite(user)) redirect("/pending");

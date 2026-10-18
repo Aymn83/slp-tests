@@ -5,12 +5,14 @@ import { changePasswordAction, updateProfileAction } from "@/lib/auth-actions";
 import type { Dict } from "@/lib/i18n";
 import { FormMessage, SubmitButton } from "@/components/ui";
 import { AccountFields } from "@/components/account-fields";
+import { PhotoPicker } from "@/components/photo-picker";
 
-export function ProfileForm({ t, d }: { t: Dict; d: React.ComponentProps<typeof AccountFields>["d"] }) {
+export function ProfileForm({ t, d, photoUrl }: { t: Dict; d: React.ComponentProps<typeof AccountFields>["d"]; photoUrl: string | null }) {
   const [state, action] = useActionState(updateProfileAction, null);
   return (
     <form action={action} className="space-y-4">
       <FormMessage state={state} />
+      <PhotoPicker t={t} existingUrl={photoUrl} inputId="profile-photo" />
       <AccountFields t={t} d={d} />
       <SubmitButton>{t.save}</SubmitButton>
     </form>

@@ -16,6 +16,16 @@ export function parsePhoto(dataUrl: string): Uint8Array<ArrayBuffer> | null | "i
   return jpeg || png || webp ? new Uint8Array(buf) : "invalid";
 }
 
+// تحديث الصورة من حقلي photoMode و photo: لا تغيير، أو حذف، أو صورة جديدة
+export function readPhotoUpdate(fd: FormData): { photo?: Uint8Array<ArrayBuffer> | null; hasPhoto?: boolean } | "invalid" {
+  const mode = String(fd.get("photoMode") ?? "");
+  if (mode === "remove") return { photo: null, hasPhoto: false };
+  if (mode !== "new") return {};
+  const photo = parsePhoto(String(fd.get("photo") ?? ""));
+  if (photo === "invalid") return "invalid";
+  return photo ? { photo, hasPhoto: true } : {};
+}
+
 export function photoMime(buf: Uint8Array): string {
   if (buf[0] === 0xff && buf[1] === 0xd8) return "image/jpeg";
   if (buf[0] === 0x89 && buf[1] === 0x50) return "image/png";

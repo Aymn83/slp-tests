@@ -6,6 +6,7 @@ import { getDict } from "@/lib/i18n";
 import { NO_INDEX } from "@/lib/seo";
 import { LangToggle } from "@/components/lang-toggle";
 import { Logo } from "@/components/logo";
+import { UserCard } from "@/components/user-card";
 
 export const metadata: Metadata = { robots: NO_INDEX };
 
@@ -23,7 +24,6 @@ export default async function StudentLayout({ children }: { children: React.Reac
           </Link>
           <span className="badge bg-amber-100 text-amber-800">{t.studentArea}</span>
           <div className="ms-auto flex items-center gap-2">
-            <span className="hidden text-sm font-semibold text-ink-soft sm:inline">{user.fullName}</span>
             {user.role === "admin" && (
               <Link href="/admin/students" className="btn btn-sm">
                 {t.studentResults}
@@ -36,7 +36,12 @@ export default async function StudentLayout({ children }: { children: React.Reac
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</main>
+      <div className="mx-auto grid w-full max-w-6xl flex-1 gap-6 px-4 py-6 lg:grid-cols-[230px_1fr]">
+        <aside className="no-print lg:sticky lg:top-4 lg:self-start">
+          <UserCard user={user} t={t} profileHref="/student/profile" />
+        </aside>
+        <main className="min-w-0">{children}</main>
+      </div>
     </>
   );
 }

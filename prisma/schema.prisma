@@ -26,9 +26,12 @@ model User {
   package      Package?  @relation(fields: [packageId], references: [id], onDelete: SetNull)
   expiresAt    DateTime? // انتهاء العضوية (اختياري)
   lastLoginAt  DateTime?
+  photo        Bytes? // الصورة الشخصية (تظهر في بطاقة المستخدم)
+  hasPhoto     Boolean   @default(false)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
+  specialists Specialist[] // صفحته في دليل الاختصاصيين — صفحة واحدة لكل حساب (يُفرض في الكود)
   cases       Case[]
   assessments Assessment[]
   attempts    ActivityAttempt[]
@@ -66,6 +69,8 @@ model Package {
 // دليل الاختصاصيين المعتمدين — صفحة عامة؛ يظهر الاختصاصي فيها بعد موافقة المدير
 model Specialist {
   id            String    @id @default(cuid())
+  userId        String? // الحساب المالك — يستطيع تعديل صفحته بنفسه
+  user          User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   fullName      String
   phone         String?
   email         String?
@@ -84,6 +89,7 @@ model Specialist {
   updatedAt     DateTime  @updatedAt
 
   @@index([status])
+  @@index([userId])
 }
 
 // المفحوص — يملكه الفاحص الذي أدخله فقط

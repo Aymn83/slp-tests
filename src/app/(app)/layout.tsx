@@ -4,6 +4,7 @@ import { logoutAction } from "@/lib/auth-actions";
 import { getDict } from "@/lib/i18n";
 import { LangToggle } from "@/components/lang-toggle";
 import { Logo } from "@/components/logo";
+import { UserCard } from "@/components/user-card";
 import { prisma } from "@/lib/prisma";
 import { NO_INDEX } from "@/lib/seo";
 import type { Metadata } from "next";
@@ -43,9 +44,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             <span className="truncate font-bold text-brand-dark">{t.siteTitle}</span>
           </Link>
           <div className="ms-auto flex items-center gap-2">
-            <Link href="/profile" className="hidden text-sm font-semibold text-ink-soft hover:text-brand sm:inline">
-              {user.fullName}
-            </Link>
             <LangToggle lang={lang} t={t} />
             <form action={logoutAction}>
               <button className="btn btn-sm">{t.logout}</button>
@@ -65,15 +63,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               ) : null}
             </Link>
           ))}
-          <Link
-            href="/profile"
-            className="shrink-0 rounded-lg px-3 py-1.5 text-sm font-semibold text-ink-soft hover:bg-brand-soft sm:hidden"
-          >
-            {t.profile}
-          </Link>
         </nav>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">{children}</main>
+      <div className="mx-auto grid w-full max-w-6xl flex-1 gap-6 px-4 py-6 lg:grid-cols-[230px_1fr]">
+        <aside className="no-print lg:sticky lg:top-4 lg:self-start">
+          <UserCard user={user} t={t} profileHref="/profile" />
+        </aside>
+        <main className="min-w-0">{children}</main>
+      </div>
     </>
   );
 }

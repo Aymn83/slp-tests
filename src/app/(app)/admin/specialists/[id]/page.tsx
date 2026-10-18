@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { COUNTRY_SUGGESTIONS, SPECIALTY_SUGGESTIONS } from "@/lib/specialists";
 import { ConfirmButton, SubmitButton } from "@/components/ui";
 import { SpecialistForm } from "@/components/specialist-form";
+import { LinkAccountForm } from "./link-form";
 
 export default async function EditSpecialistPage({ params }: { params: Promise<{ id: string }> }) {
   await requireAdmin();
@@ -14,6 +15,12 @@ export default async function EditSpecialistPage({ params }: { params: Promise<{
   const { t } = await getDict();
   const s = await prisma.specialist.findUnique({ where: { id }, omit: { photo: true } });
   if (!s) notFound();
+  // الأعضاء القابلون للربط: غير الطلاب
+  const members = await prisma.user.findMany({
+    where: { role: { not: "student" } },
+    select: { id: true, fullName: true, username: true },
+    orderBy: { fullName: "asc" },
+  });
   const statusLabel = s.status === "approved" ? t.certifiedBadge : s.status === "pending" ? t.statusPending : t.statusRejected;
 
   return (
@@ -49,6 +56,9 @@ export default async function EditSpecialistPage({ params }: { params: Promise<{
           <ConfirmButton message={t.deleteSpecialistConfirm}>{t.delete}</ConfirmButton>
         </form>
       </div>
+
+      {/* المفتاح يعيد بناء النموذج بعد الحفظ ليعرض الحساب المرتبط الجديد */}
+      <LinkAccountForm key={s.userId ?? "none"} t={t} id={s.id} userId={s.userId} members={members} />
 
       <SpecialistForm
         t={t}

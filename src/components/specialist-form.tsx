@@ -1,38 +1,15 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import Link from "next/link";
 import type { Dict } from "@/lib/i18n";
 import type { FormState } from "@/lib/form-state";
 import { FormMessage, SubmitButton } from "./ui";
+import { PhotoPicker } from "./photo-picker";
 
 type Values = Partial<
   Record<"fullName" | "phone" | "email" | "specialty" | "licenseNumber" | "country" | "governorate" | "workplace" | "workPhone" | "skills", string | null>
 >;
-
-// تصغير الصورة في المتصفح إلى 480 بكسل كحد أقصى وتحويلها JPEG — يبقى الحجم صغيراً قبل الإرسال
-async function shrinkImage(file: File): Promise<string> {
-  const url = URL.createObjectURL(file);
-  try {
-    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const i = new Image();
-      i.onload = () => resolve(i);
-      i.onerror = reject;
-      i.src = url;
-    });
-    const scale = Math.min(1, 480 / Math.max(img.width, img.height));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(img.width * scale);
-    canvas.height = Math.round(img.height * scale);
-    const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL("image/jpeg", 0.85);
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-}
 
 export function SpecialistForm({
   t,
@@ -44,6 +21,8 @@ export function SpecialistForm({
   countries,
   submitLabel,
   successView,
+  licenseLocked,
+  cancelHref,
 }: {
   t: Dict;
   action: (s: FormState, fd: FormData) => Promise<FormState>;
@@ -54,12 +33,10 @@ export function SpecialistForm({
   countries: string[];
   submitLabel: string;
   successView?: boolean; // نموذج الانضمام: يستبدل النموذج برسالة نجاح
+  licenseLocked?: boolean; // صاحب الصفحة لا يعدّل رقم الترخيص
+  cancelHref?: string;
 }) {
   const [state, formAction] = useActionState(action, null);
-  const [photo, setPhoto] = useState(""); // dataURL جديدة
-  const [mode, setMode] = useState<"keep" | "remove" | "new">("keep");
-  const [photoError, setPhotoError] = useState("");
-  const preview = mode === "new" ? photo : mode === "keep" ? existingPhotoUrl : null;
 
   if (successView && state?.ok) {
     return (
@@ -84,8 +61,6 @@ export function SpecialistForm({
   return (
     <form action={formAction} className="space-y-5">
       {id && <input type="hidden" name="id" value={id} />}
-      <input type="hidden" name="photo" value={mode === "new" ? photo : ""} />
-      <input type="hidden" name="photoMode" value={mode} />
       {/* حقل فخ لبرامج الإزعاج — مخفي عن المستخدمين */}
       <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
 
@@ -93,44 +68,7 @@ export function SpecialistForm({
       <FormMessage state={state} />
 
       <section className="card space-y-4">
-        <div className="flex flex-wrap items-center gap-4">
-          {preview ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={preview} alt="" className="h-24 w-24 rounded-full border border-line object-cover" />
-          ) : (
-            <span className="flex h-24 w-24 items-center justify-center rounded-full bg-page text-3xl text-ink-soft">👤</span>
-          )}
-          <div className="space-y-2">
-            <label className="label" htmlFor="sp-photo">
-              {t.photo} <span className="muted font-normal">({t.optional})</span>
-            </label>
-            <input
-              id="sp-photo"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className="block text-sm"
-              onChange={async (e) => {
-                const f = e.target.files?.[0];
-                setPhotoError("");
-                if (!f) return;
-                if (f.size > 15 * 1024 * 1024) return setPhotoError(t.invalidPhoto);
-                try {
-                  setPhoto(await shrinkImage(f));
-                  setMode("new");
-                } catch {
-                  setPhotoError(t.invalidPhoto);
-                }
-              }}
-            />
-            <p className="muted text-xs">{t.photoHint}</p>
-            {photoError && <p className="text-sm text-red-700">{photoError}</p>}
-            {preview && (
-              <button type="button" className="btn btn-sm" onClick={() => setMode("remove")}>
-                {t.removePhoto}
-              </button>
-            )}
-          </div>
-        </div>
+        <PhotoPicker t={t} existingUrl={existingPhotoUrl} inputId="sp-photo" />
         {field("fullName", t.fullName, true)}
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
@@ -144,7 +82,10 @@ export function SpecialistForm({
               ))}
             </datalist>
           </div>
-          {field("licenseNumber", t.licenseNumber, true, { dir: "ltr" })}
+          <div>
+            {field("licenseNumber", t.licenseNumber, true, { dir: "ltr", readOnly: licenseLocked, className: licenseLocked ? "input bg-page" : "input" })}
+            {licenseLocked && <p className="muted mt-1 text-xs">{t.licenseLocked}</p>}
+          </div>
         </div>
       </section>
 
@@ -192,7 +133,14 @@ export function SpecialistForm({
         </div>
       </section>
 
-      <SubmitButton>{submitLabel}</SubmitButton>
+      <div className="flex flex-wrap gap-3">
+        <SubmitButton>{submitLabel}</SubmitButton>
+        {cancelHref && (
+          <Link href={cancelHref} className="btn">
+            {t.cancel}
+          </Link>
+        )}
+      </div>
     </form>
   );
 }

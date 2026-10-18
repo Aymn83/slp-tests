@@ -5,10 +5,11 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "./prisma";
 import { hashPassword, verifyPassword } from "./password";
-import { createSession, destroySession, homeFor, requireUser } from "./auth";
+import { createSession, destroySession, homeFor, requireActive } from "./auth";
 import { LANG_COOKIE, getDict } from "./i18n";
 import { opt, str, validateNewCredentials } from "./credentials";
 import type { FormState } from "./form-state";
+import { readPhotoUpdate } from "./specialists";
 
 export async function loginAction(_: FormState, fd: FormData): Promise<FormState> {
   const { t } = await getDict();
@@ -80,13 +81,16 @@ export async function setLangAction(fd: FormData) {
 }
 
 export async function updateProfileAction(_: FormState, fd: FormData): Promise<FormState> {
-  const user = await requireUser();
+  const user = await requireActive();
   const { t } = await getDict();
   const fullName = str(fd, "fullName");
   if (!fullName) return { error: t.fillRequired };
+  const photoData = readPhotoUpdate(fd);
+  if (photoData === "invalid") return { error: t.invalidPhoto };
   await prisma.user.update({
     where: { id: user.id },
     data: {
+      ...photoData,
       fullName,
       fullNameEn: opt(fd, "fullNameEn"),
       organization: opt(fd, "organization"),
@@ -100,7 +104,7 @@ export async function updateProfileAction(_: FormState, fd: FormData): Promise<F
 }
 
 export async function changePasswordAction(_: FormState, fd: FormData): Promise<FormState> {
-  const user = await requireUser();
+  const user = await requireActive();
   const { t } = await getDict();
   const current = String(fd.get("current") ?? "");
   const password = String(fd.get("password") ?? "");

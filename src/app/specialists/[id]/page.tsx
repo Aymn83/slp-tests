@@ -98,8 +98,9 @@ export default async function SpecialistPage({ params }: { params: Promise<{ id:
   const s = await loadSpecialist(id);
   const user = await getCurrentUser();
   const isAdmin = user?.role === "admin";
-  // الملفات غير المعتمدة لا يراها إلا المدير
-  if (!s || (s.status !== "approved" && !isAdmin)) notFound();
+  const canEdit = !!user && (isAdmin || s?.userId === user.id);
+  // الملفات غير المعتمدة لا يراها إلا المدير وصاحبها
+  if (!s || (s.status !== "approved" && !isAdmin && s.userId !== user?.id)) notFound();
 
   const rows: Row[] = [
     { label: t.specialty, value: s.specialty },
@@ -142,10 +143,15 @@ export default async function SpecialistPage({ params }: { params: Promise<{ id:
       </Link>
       {s.status !== "approved" && (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-          {s.status === "pending" ? t.statusPending : t.statusRejected} —{" "}
-          <Link href={`/admin/specialists/${s.id}`} className="font-semibold underline">
-            {t.editSpecialist}
-          </Link>
+          {s.status === "pending" ? t.statusPending : t.statusRejected}
+          {isAdmin && (
+            <>
+              {" — "}
+              <Link href={`/admin/specialists/${s.id}`} className="font-semibold underline">
+                {t.editSpecialist}
+              </Link>
+            </>
+          )}
         </p>
       )}
       <section className="card flex flex-wrap items-center gap-5">
@@ -160,6 +166,11 @@ export default async function SpecialistPage({ params }: { params: Promise<{ id:
                 text={`${s.fullName} — ${s.specialty} | ${t.specialists}`}
                 labels={{ share: t.share, copyLink: t.copyLink, linkCopied: t.linkCopied, shareVia: t.shareVia }}
               />
+            )}
+            {canEdit && (
+              <Link href={`/specialists/${s.id}/edit`} className="btn btn-primary btn-sm">
+                ✎ {t.editMyData}
+              </Link>
             )}
           </div>
           <p className="text-brand-dark">{s.specialty}</p>
