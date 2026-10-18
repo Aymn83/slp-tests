@@ -35,6 +35,20 @@ model User {
   cases       Case[]
   assessments Assessment[]
   attempts    ActivityAttempt[]
+  resetTokens PasswordResetToken[]
+}
+
+// رابط «نسيت كلمة المرور»: يُخزَّن بصمة الرمز فقط (لا الرمز نفسه)، ويُستخدم مرة واحدة خلال ساعة
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
 
 // محاولة طالب في نشاط تدريبي — تُصحَّح الإجابات في الخادم ولا تُرسل مفاتيحها للمتصفح

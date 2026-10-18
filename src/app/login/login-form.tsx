@@ -9,7 +9,7 @@ import { FormMessage, SubmitButton } from "@/components/ui";
 type As = "specialist" | "student";
 
 // الدخول واحد للجميع، والحساب نفسه يحدد الوجهة؛ اختيار «طالب» يغيّر رابط إنشاء الحساب فقط
-export function LoginForm({ t, initialAs }: { t: Dict; initialAs: As }) {
+export function LoginForm({ t, initialAs, resetDone }: { t: Dict; initialAs: As; resetDone?: boolean }) {
   const [state, action] = useActionState(loginAction, null);
   const [as, setAs] = useState<As>(initialAs);
   return (
@@ -32,7 +32,7 @@ export function LoginForm({ t, initialAs }: { t: Dict; initialAs: As }) {
           ))}
         </div>
       </div>
-      <FormMessage state={state} />
+      <FormMessage state={state ?? (resetDone ? { ok: t.resetDone } : null)} />
       <div>
         <label className="label" htmlFor="username">{t.username}</label>
         <input id="username" name="username" className="input" dir="ltr" autoComplete="username" required />
@@ -40,6 +40,11 @@ export function LoginForm({ t, initialAs }: { t: Dict; initialAs: As }) {
       <div>
         <label className="label" htmlFor="password">{t.password}</label>
         <input id="password" name="password" type="password" className="input" dir="ltr" autoComplete="current-password" required />
+      </div>
+      <div className="text-end">
+        <Link href="/forgot-password" className="text-sm font-semibold text-brand hover:underline">
+          {t.forgotPassword}
+        </Link>
       </div>
       <SubmitButton className="btn btn-primary w-full">{t.login}</SubmitButton>
       <p className="muted text-center">

@@ -10,7 +10,10 @@ export function ProfilePageBody({ user, t }: { user: CurrentUser; t: Dict }) {
     <div className="mx-auto max-w-2xl space-y-6">
       <h1 className="h1">{t.editMyData}</h1>
       <section className="card">
-        <p className="muted mb-4">{t.profileHint}</p>
+        <div className="mb-4 space-y-2">
+          <p className="muted">{t.profileHint}</p>
+          {!user.email && <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">{t.emailForReset}</p>}
+        </div>
         <ProfileForm
           t={t}
           photoUrl={user.hasPhoto ? `/me/photo?v=${user.updatedAt.getTime()}` : null}

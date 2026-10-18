@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifyToken } from "@/lib/session";
 
 // فحص متفائل فقط: هل يوجد جلسة صالحة؟ التحقق الكامل من الحالة والصلاحيات يتم في الصفحات.
-const PUBLIC_PATHS = new Set(["/login", "/register", "/register/student"]);
+const PUBLIC_PATHS = new Set(["/login", "/register", "/register/student", "/forgot-password", "/reset-password"]);
 // صفحات عامة يراها الجميع، مسجّلين أو زواراً
 const OPEN_PREFIXES = ["/specialists", "/robots.txt", "/sitemap.xml", "/manifest.webmanifest", "/opengraph-image", "/icon", "/apple-icon"];
 

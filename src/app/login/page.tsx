@@ -8,12 +8,13 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t.login, alternates: { canonical: "/login" } };
 }
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ as?: string }> }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ as?: string; reset?: string }> }) {
   const { t } = await getDict();
-  const as = (await searchParams).as === "student" ? "student" : "specialist";
+  const sp = await searchParams;
+  const as = sp.as === "student" ? "student" : "specialist";
   return (
     <PublicShell>
-      <LoginForm t={t} initialAs={as} />
+      <LoginForm t={t} initialAs={as} resetDone={sp.reset === "1"} />
     </PublicShell>
   );
 }

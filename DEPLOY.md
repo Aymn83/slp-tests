@@ -142,3 +142,21 @@ gunzip -c /root/backups/slp-tests/<اسم_الملف>.sql.gz | sudo -u postgres 
 
 ## 12) الجدار الناري
 لا تفتح المنفذ 3200 ولا 5432 للخارج — يكفي `Nginx Full` (80/443) المفتوح أصلاً لبراعم.
+
+## 13) البريد — رسائل «نسيت كلمة المرور»
+أضف إلى نهاية `/var/www/slp-tests/.env` (ضع كلمة مرور صندوق البريد بنفسك):
+```bash
+nano /var/www/slp-tests/.env
+```
+```
+SMTP_HOST="smtp.hostinger.com"
+SMTP_PORT=465
+SMTP_USER="noreply@myskills.lt"
+SMTP_PASS="كلمة_مرور_صندوق_البريد"
+MAIL_FROM="الاختبارات الخاصة باضطرابات اللغة والكلام <noreply@myskills.lt>"
+```
+ثم أعد تشغيل الموقع ليقرأ الإعدادات:
+```bash
+pm2 reload slp-tests --update-env
+```
+بدون هذه الإعدادات يعمل الموقع طبيعياً، لكن رسائل الاستعادة لا تُرسل (تُكتب في سجل `pm2 logs slp-tests` فقط).
