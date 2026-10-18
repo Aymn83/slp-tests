@@ -1,5 +1,5 @@
 // إعدادات تحسين الظهور في محركات البحث (SEO)
-export const SITE_URL = (process.env.SITE_URL || "https://myskills.lt").replace(/\/$/, "");
+export const SITE_URL = (process.env.SITE_URL || "https://therapists-slp.com").replace(/\/$/, "");
 
 export const SEO_KEYWORDS = [
   "اضطرابات اللغة والكلام",

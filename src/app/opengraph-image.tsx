@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 // صورة المعاينة عند مشاركة رابط الموقع (واتساب، فيسبوك، X…).
 // النص بالإنجليزية لأن مولّد الصور لا يدعم وصل الحروف العربية؛ العنوان العربي يظهر بجانب الصورة من وسوم الصفحة.
-export const alt = "myskills.lt — Speech & Language Disorders Assessments";
+export const alt = "therapists-slp.com — Speech & Language Disorders Assessments";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -35,7 +35,7 @@ export default function OpengraphImage() {
         </svg>
         <div style={{ fontSize: 64, fontWeight: 700 }}>Speech &amp; Language Assessments</div>
         <div style={{ fontSize: 34, opacity: 0.9 }}>Online tests · Reports · Certified specialists</div>
-        <div style={{ fontSize: 30, marginTop: 10, padding: "8px 28px", borderRadius: 999, background: "rgba(255,255,255,0.15)" }}>myskills.lt</div>
+        <div style={{ fontSize: 30, marginTop: 10, padding: "8px 28px", borderRadius: 999, background: "rgba(255,255,255,0.15)" }}>therapists-slp.com</div>
       </div>
     ),
     size,

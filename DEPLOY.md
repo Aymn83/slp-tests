@@ -160,3 +160,36 @@ MAIL_FROM="الاختبارات الخاصة باضطرابات اللغة وا�
 pm2 reload slp-tests --update-env
 ```
 بدون هذه الإعدادات يعمل الموقع طبيعياً، لكن رسائل الاستعادة لا تُرسل (تُكتب في سجل `pm2 logs slp-tests` فقط).
+
+## 14) النطاق الرئيسي الجديد: therapists-slp.com (و myskills.lt يحوّل إليه)
+
+**أ) DNS** — من لوحة Hostinger للنطاق `therapists-slp.com`:
+- عدّل سجل `A` للاسم `@` ليشير إلى `187.124.13.157` (بدل `2.57.91.91`).
+- سجل `www`: إما `CNAME` ← `therapists-slp.com`، أو `A` ← `187.124.13.157`.
+
+انتظر حتى ينتشر: `ping therapists-slp.com` يُظهر `187.124.13.157`.
+
+**ب) جلب التحديث** (يجعل الروابط والخريطة تستخدم النطاق الجديد):
+```bash
+/root/update-slp.sh
+```
+
+**ج) تفعيل النطاق الجديد في Nginx + شهادة SSL:**
+```bash
+cp /var/www/slp-tests/deploy/nginx-therapists-slp.com.conf /etc/nginx/sites-available/therapists-slp
+ln -s /etc/nginx/sites-available/therapists-slp /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx
+certbot --nginx -d therapists-slp.com -d www.therapists-slp.com
+```
+تأكد أن **https://therapists-slp.com** يفتح الموقع قبل المتابعة.
+
+**د) تحويل myskills.lt إلى النطاق الجديد:**
+```bash
+ls /etc/letsencrypt/live/          # يجب أن يظهر مجلد باسم myskills.lt
+cp /etc/nginx/sites-available/slp-tests /root/slp-tests.nginx.backup
+cp /var/www/slp-tests/deploy/nginx-myskills.lt-redirect.conf /etc/nginx/sites-available/slp-tests
+nginx -t && systemctl reload nginx
+```
+إذا فشل `nginx -t` أعد النسخة السابقة: `cp /root/slp-tests.nginx.backup /etc/nginx/sites-available/slp-tests && systemctl reload nginx`
+
+**هـ) Google Search Console:** أضف `therapists-slp.com` كموقع جديد وأرسل `https://therapists-slp.com/sitemap.xml`، ثم من إعدادات `myskills.lt` استخدم أداة **Change of address** وانقلها إلى النطاق الجديد.

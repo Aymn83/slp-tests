@@ -1,4 +1,4 @@
-// إعداد PM2 لتشغيل موقع الاختبارات (myskills.lt) كعملية مستقلة عن براعم
+// إعداد PM2 لتشغيل موقع الاختبارات (therapists-slp.com، و myskills.lt يحوّل إليه) كعملية مستقلة عن براعم
 // التشغيل:  pm2 start deploy/ecosystem.config.js  ثم  pm2 save
 module.exports = {
   apps: [

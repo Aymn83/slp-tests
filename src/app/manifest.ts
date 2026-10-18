@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "الاختبارات الخاصة باضطرابات اللغة والكلام",
-    short_name: "myskills",
+    short_name: "therapists-slp",
     description: "منصة متخصصة لأخصائيي النطق واللغة: اختبارات إلكترونية وتقارير ودليل للاختصاصيين المعتمدين.",
     start_url: "/specialists",
     display: "standalone",

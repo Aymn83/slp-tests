@@ -31,7 +31,7 @@ try {
   const r = await transport.sendMail({
     from: MAIL_FROM || SMTP_USER,
     to,
-    subject: "اختبار البريد — myskills.lt",
+    subject: "اختبار البريد — therapists-slp.com",
     text: "رسالة تجريبية من الموقع. إذا وصلتك فإعدادات البريد صحيحة.",
   });
   console.log("SENT:", r.response);
