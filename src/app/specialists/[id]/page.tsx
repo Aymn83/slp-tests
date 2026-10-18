@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getDict } from "@/lib/i18n";
 import { prisma } from "@/lib/prisma";
 import { SpecialistAvatar } from "@/components/specialist-avatar";
+import { ShareButton } from "@/components/share-button";
 
 type Row = { label: string; value: string | null; href?: string; ltr?: boolean };
 
@@ -34,6 +35,42 @@ function List({ items }: { items: Row[] }) {
   );
 }
 
+// نص المهارات: الأسطر التي تبدأ بـ - أو • تصبح قائمة نقطية، والباقي فقرات
+function SkillsText({ text }: { text: string }) {
+  const blocks: { list: boolean; lines: string[] }[] = [];
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    const bullet = BULLET.test(line);
+    const clean = line.replace(BULLET, "");
+    const last = blocks[blocks.length - 1];
+    if (bullet && last?.list) last.lines.push(clean);
+    else blocks.push({ list: bullet, lines: [clean] });
+  }
+  return (
+    <div className="space-y-2 text-sm leading-relaxed">
+      {blocks.map((b, i) =>
+        b.list ? (
+          <ul key={i} className="list-disc space-y-1 ps-5 marker:text-brand">
+            {b.lines.map((l, j) => (
+              <li key={j}>{l}</li>
+            ))}
+          </ul>
+        ) : (
+          <p key={i}>{b.lines[0]}</p>
+        ),
+      )}
+    </div>
+  );
+}
+
+const BULLET = /^[-•*]\s*/;
+const firstSkill = (skills: string | null) =>
+  skills
+    ?.split(/\r?\n/)
+    .map((l) => l.replace(BULLET, "").trim())
+    .find(Boolean) ?? null;
+
 // يُستدعى مرة واحدة لكل طلب رغم استخدامه في البيانات الوصفية والصفحة
 const loadSpecialist = cache((id: string) => prisma.specialist.findUnique({ where: { id }, omit: { photo: true } }));
 
@@ -43,7 +80,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!s || s.status !== "approved") return { robots: NO_INDEX };
   const place = [s.governorate, s.country].filter(Boolean).join("، ");
   const title = `${s.fullName} — ${s.specialty}`;
-  const description = [s.specialty, place, s.workplace].filter(Boolean).join(" · ");
+  const description = [s.specialty, place, s.workplace, firstSkill(s.skills)].filter(Boolean).join(" · ").slice(0, 300);
   const url = `/specialists/${s.id}`;
   const images = s.hasPhoto ? [{ url: `${url}/photo?v=${s.updatedAt.getTime()}`, alt: s.fullName }] : undefined;
   return {
@@ -86,6 +123,7 @@ export default async function SpecialistPage({ params }: { params: Promise<{ id:
     "@id": `${SITE_URL}/specialists/${s.id}`,
     name: s.fullName,
     jobTitle: s.specialty,
+    ...(s.skills && { description: s.skills.replace(/^[-•*]\s*/gm, "").replace(/\s*\n+\s*/g, " · ").slice(0, 500) }),
     url: `${SITE_URL}/specialists/${s.id}`,
     ...(s.hasPhoto && { image: `${SITE_URL}/specialists/${s.id}/photo` }),
     ...(s.email && { email: s.email }),
@@ -112,12 +150,28 @@ export default async function SpecialistPage({ params }: { params: Promise<{ id:
       )}
       <section className="card flex flex-wrap items-center gap-5">
         <SpecialistAvatar id={s.id} name={s.fullName} hasPhoto={s.hasPhoto} version={s.updatedAt} className="h-28 w-28 text-4xl" />
-        <div className="space-y-2">
-          <h2 className="text-2xl font-bold">{s.fullName}</h2>
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="text-2xl font-bold">{s.fullName}</h2>
+            {s.status === "approved" && (
+              <ShareButton
+                url={`${SITE_URL}/specialists/${s.id}`}
+                title={`${s.fullName} — ${s.specialty}`}
+                text={`${s.fullName} — ${s.specialty} | ${t.specialists}`}
+                labels={{ share: t.share, copyLink: t.copyLink, linkCopied: t.linkCopied, shareVia: t.shareVia }}
+              />
+            )}
+          </div>
           <p className="text-brand-dark">{s.specialty}</p>
           {s.status === "approved" && <span className="badge bg-emerald-100 text-emerald-800">✓ {t.certifiedBadge}</span>}
         </div>
       </section>
+      {s.skills && (
+        <section className="card space-y-3">
+          <h3 className="font-bold">{t.skills}</h3>
+          <SkillsText text={s.skills} />
+        </section>
+      )}
       <div className="grid gap-5 md:grid-cols-2">
         <section className="card space-y-3">
           <List items={rows} />

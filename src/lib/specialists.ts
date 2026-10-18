@@ -36,6 +36,7 @@ export function readSpecialistFields(fd: FormData, t: Dict) {
     governorate: cut(opt(fd, "governorate"), 80),
     workplace: cut(opt(fd, "workplace")),
     workPhone: cut(opt(fd, "workPhone"), 40),
+    skills: cut(opt(fd, "skills"), 3000),
   };
   if (!data.fullName || !data.specialty || !data.licenseNumber || !data.country) return { error: t.fillRequired } as const;
   if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) return { error: t.invalidEmail } as const;

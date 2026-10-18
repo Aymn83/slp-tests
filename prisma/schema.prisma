@@ -75,6 +75,7 @@ model Specialist {
   governorate   String?
   workplace     String?
   workPhone     String?
+  skills        String? // المهارات والخبرات — نص حر يكتبه الاختصاصي
   photo         Bytes? // صورة مصغّرة (JPEG) — تُضمَّن في النسخ الاحتياطي مع القاعدة
   hasPhoto      Boolean   @default(false) // لتجنّب تحميل الصور عند عرض القوائم
   status        String    @default("pending") // pending | approved | rejected

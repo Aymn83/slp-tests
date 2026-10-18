@@ -243,6 +243,13 @@ const ar = {
   myDashboard: "لوحتي",
   viewProfile: "عرض الملف",
   hideFromDirectory: "إخفاء من الدليل",
+  skills: "المهارات والخبرات",
+  skillsHint: "اكتب عن خبراتك ومهاراتك المهنية؛ كل سطر يبدأ بـ - يظهر كنقطة في قائمة.",
+  skillsPlaceholder: "مثال:\n- تقييم وتشخيص اضطرابات النطق والفونولوجيا لدى الأطفال\n- خبرة في التدخل المبكر واضطراب طيف التوحد",
+  share: "مشاركة",
+  copyLink: "نسخ الرابط",
+  linkCopied: "تم نسخ الرابط",
+  shareVia: "مشاركة عبر",
   requiredMark: "الحقول المعلّمة بـ * إجبارية.",
 
   // الطلاب والأنشطة التدريبية
@@ -496,6 +503,13 @@ const en: Dict = {
   myDashboard: "My dashboard",
   viewProfile: "View profile",
   hideFromDirectory: "Hide from directory",
+  skills: "Skills & experience",
+  skillsHint: "Describe your professional skills and experience; each line starting with - is shown as a bullet.",
+  skillsPlaceholder: "Example:\n- Assessment and diagnosis of speech sound disorders in children\n- Experience in early intervention and autism",
+  share: "Share",
+  copyLink: "Copy link",
+  linkCopied: "Link copied",
+  shareVia: "Share via",
   requiredMark: "Fields marked * are required.",
 
   roleStudent: "Student",

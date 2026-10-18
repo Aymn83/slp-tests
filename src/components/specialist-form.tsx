@@ -7,7 +7,7 @@ import type { FormState } from "@/lib/form-state";
 import { FormMessage, SubmitButton } from "./ui";
 
 type Values = Partial<
-  Record<"fullName" | "phone" | "email" | "specialty" | "licenseNumber" | "country" | "governorate" | "workplace" | "workPhone", string | null>
+  Record<"fullName" | "phone" | "email" | "specialty" | "licenseNumber" | "country" | "governorate" | "workplace" | "workPhone" | "skills", string | null>
 >;
 
 // تصغير الصورة في المتصفح إلى 480 بكسل كحد أقصى وتحويلها JPEG — يبقى الحجم صغيراً قبل الإرسال
@@ -146,6 +146,22 @@ export function SpecialistForm({
           </div>
           {field("licenseNumber", t.licenseNumber, true, { dir: "ltr" })}
         </div>
+      </section>
+
+      <section className="card space-y-2">
+        <label className="label" htmlFor="sp-skills">
+          {t.skills} <span className="muted font-normal">({t.optional})</span>
+        </label>
+        <p className="muted text-xs">{t.skillsHint}</p>
+        <textarea
+          id="sp-skills"
+          name="skills"
+          rows={7}
+          maxLength={3000}
+          className="input leading-relaxed"
+          placeholder={t.skillsPlaceholder}
+          defaultValue={values.skills ?? ""}
+        />
       </section>
 
       <section className="card space-y-4">
